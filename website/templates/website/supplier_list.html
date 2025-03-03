@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="text-primary">Supplier List</h2>
@@ -8,7 +11,7 @@
     </div>
 
     <div class="table-responsive mt-3">
-        <table class="table table-hover table-bordered shadow-sm">
+        <table id="businesstable" class="table table-hover table-bordered shadow-sm">
             <thead class="thead-dark">
                 <tr>
                     <th>Name</th>
@@ -41,6 +44,46 @@
                 {% endfor %}
             </tbody>
         </table>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script>
+    $(document).ready(function() {
+        var table = $('#businesstable').DataTable({
+            responsive: true,
+            autoWidth: false,
+            searching: true,
+            ordering: true,
+            select: {
+                style: 'multi' // Enable multi-select
+            },
+            columnDefs: [
+                { targets: [0, 1, 2], searchable: true }, // Enable search for specific columns
+                { targets: [3], orderable: false } // Disable sorting for actions column
+            ],
+            initComplete: function () {
+                var business_unit = $('#business_unit');
+        
+                // Populate Academic Term Filter Dropdown (Column 3)
+                this.api().columns(2).every(function () {
+                    var column = this;
+                    column.data().unique().sort().each(function (d, j) {
+                        if (!$(`#business_unit option[value="${d}"]`).length) {
+                            business_unit.append('<option value="' + d + '">' + d + '</option>');
+                        }
+                    });
+                });
+            }
+        });
+
+        // Filter by Course Subject
+        $('#business_unit').on('change', function() {
+            var location = $(this).val();
+            table.column(2).search(location ? '^' + location + '$' : '', true, false).draw();
+        });
+    });
+  </script>
 {% endblock %}
