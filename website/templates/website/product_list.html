@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="text-primary">Product List</h2>
+        <a href="{% url 'product_create' %}" class="btn btn-success shadow">➕ Add Product</a>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table id="businesstable" class="table table-hover table-bordered shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Units</th>
+                    <th>Available</th>
+                    <th>Status</th>
+                    <th>Supplier</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>{{ product.units }}</td>  
+                        <td>{{ product.available_units }}</td>
+                        <td>{{ product.status }}</td>
+                        <td>{{ product.supplier }}</td>
+                        <td>
+                            <a href="{% url 'product_update' product.id %}" class="btn btn-warning btn-sm mx-1">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'product_delete' product.id %}" class="btn btn-danger btn-sm mx-1">
+                                <i class="fas fa-trash"></i> Delete
+                            </a> 
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No products found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#businesstable').DataTable({
+            responsive: true,
+            autoWidth: false,
+            searching: true,
+            ordering: true,
+            columnDefs: [
+                { targets: [7], orderable: false } // Disable sorting for the "Actions" column
+            ]
+        });
+    });
+</script>
+{% endblock %}

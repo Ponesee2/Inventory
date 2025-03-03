@@ -41,3 +41,18 @@ def supplier_delete(request, pk):
         supplier.delete()
         return redirect('supplier_list')
     return render(request, 'website/supplier_delete.html', {'supplier': supplier})
+
+def product_list(request):
+    product = Product.objects.all()
+    return render(request, 'website/product_list.html', {'product': product})
+
+# Create a new supplier
+def product_create(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+    else:
+        form = ProductForm()
+    return render(request, 'website/product_form.html', {'form': form})

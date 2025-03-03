@@ -26,7 +26,16 @@ class SupplierForm(forms.ModelForm):
             
         }
 
-class InventoryItemForm(forms.ModelForm):
+class ProductForm(forms.ModelForm):
     class Meta:
-        
-        fields = ['name', 'quantity', 'price']
+        model = Product  # Fixed typo (changed 'models' to 'model')
+        fields = ['name', 'price', 'supplier', 'units', 'available_units', 'status', 'date']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Input Name'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Input Price'}),
+            'supplier': forms.Select(attrs={'class': 'form-control'}),
+            'units' : forms.NumberInput(attrs={'class': 'form-control'}),
+            'available_units': forms.NumberInput(attrs={'class':'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+        }

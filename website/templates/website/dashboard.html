@@ -28,7 +28,7 @@
                     <div class="icon">
                       <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <a href="#" class="small-box-footer">
+                    <a href="{% url 'product_list' %}" class="small-box-footer">
                       More info <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -77,7 +77,7 @@
             const data = {
                 labels: ['Business Units', 'Departments', 'Asset Categories', 'Asset Models', 'Assets', 'Suppliers', 'Assigned Assets'],
                 datasets: [{
-                    data: [10, 10 , 40, 10, 40, 20, 35 ],
+                    data: [10, 10 , 50, 10, 40, 20, 35 ],
                     backgroundColor: [
                         '#227C9D', '#17C3B2', '#FFCB77', '#e6a377', '#dc3545', '#6f42c1', '#FE6D73'
                     ],
