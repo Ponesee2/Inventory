@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Product</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Save</button>
-        <a href="{% url 'supplier' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+<h2>{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success" type="submit">Save</button>
+    <a class="btn btn-secondary" href="{% url 'product_list' %}">Back to List</a>
+</form>
+
 {% endblock %}
