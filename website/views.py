@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import *
 from .forms import *
 
@@ -46,13 +48,20 @@ def product_list(request):
     product = Product.objects.all()
     return render(request, 'website/product_list.html', {'product': product})
 
-# Create a new supplier
-def product_create(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('product_list')
-    else:
-        form = ProductForm()
-    return render(request, 'website/product_form.html', {'form': form})
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'website/product_form.html'
+    success_url = reverse_lazy('product_list')
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'website/product_form.html'
+    success_url = reverse_lazy('product_list')
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'website/product_delete.html'
+    success_url = reverse_lazy('product_list')

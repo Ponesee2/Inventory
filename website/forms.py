@@ -39,3 +39,5 @@ class ProductForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
         }
+
+
