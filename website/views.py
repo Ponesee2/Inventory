@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import *
 from .forms import *
 
 # Create your views here.
 def dashboard (request):
+    
     return render(request, 'website/dashboard.html', {} )
 
 def supplier_list(request):
@@ -65,3 +67,32 @@ class ProductDeleteView(DeleteView):
     model = Product
     template_name = 'website/product_delete.html'
     success_url = reverse_lazy('product_list')
+
+def transaction_create(request):
+    """Process a new transaction (buying a product)."""
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)  # Don't save yet
+            product = transaction.product
+
+            if transaction.units > product.available_units:
+                messages.error(request, f"Not enough stock available for {product.name}.")
+            else:
+                transaction.total_price = transaction.units * product.price  # Calculate price
+                product.available_units -= transaction.units  # Deduct stock
+                product.save()
+                transaction.save()  # Save transaction
+
+                messages.success(request, "Transaction successful!")
+                return redirect('transaction_list')  # Redirect to transaction list
+
+    else:
+        form = TransactionForm()
+
+    return render(request, 'website/transaction_create.html', {'form': form})
+
+def transaction_list(request):
+    """Show all transactions."""
+    transactions = Transaction.objects.all().order_by('-date')
+    return render(request, 'website/transaction_list.html', {'transactions': transactions})

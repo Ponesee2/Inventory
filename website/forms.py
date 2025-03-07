@@ -40,4 +40,11 @@ class ProductForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
         }
 
-
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ['product', 'units']
+        widgets = {
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'units' : forms.NumberInput(attrs={'Class': 'form-control'})
+        }
