@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>New Transaction</h2>
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success" type="submit">Confirm Purchase</button>
+    <a class="btn btn-secondary" href="{% url 'product_list' %}">Back to Products</a>
+</form>
+{% endblock %}
