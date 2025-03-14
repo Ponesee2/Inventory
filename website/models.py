@@ -17,11 +17,8 @@ from django.core.exceptions import ValidationError
 class Product(models.Model): 
     class StatusChoices(models.TextChoices):
         AVAILABLE = 'Available', 'Available'
-        ASSIGNED = 'Assigned', 'Assigned'
-        MAINTENANCE = 'Maintenance', 'Maintenance'
-        DISPOSED = 'Disposed', 'Disposed'
-        LOST = 'Lost', 'Lost'
-        STOLEN = 'Stolen', 'Stolen'
+        Out_of_Stock = 'Out of Stock', 'Out of Stock'
+        UNAVAILABLE = 'Unavailable', 'Unavailable' 
 
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Changed to DecimalField
@@ -44,12 +41,19 @@ class Product(models.Model):
     date = models.DateTimeField(default=now, blank=False, null=False)
     is_archived = models.BooleanField(default=False)
 
-    def __str__(self):
+    def save(self, *args, **kwargs):
+        if self.available_units == 0:
+            self.status = self.StatusChoices.Out_of_Stock
+        elif self.status == self.StatusChoices.Out_of_Stock and self.available_units > 0:
+            self.status = self.StatusChoices.AVAILABLE
+        super().save(*args, **kwargs)
+
+    def __str__(self):  
         return self.name
 
 
 class Transaction(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     units = models.IntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False)  # Auto-calculated
     date = models.DateTimeField(default=now, blank=False, null=False)

@@ -2,18 +2,35 @@
 {% block content %}
 <h2>New Transaction</h2>
 
+<!-- Display Messages -->
 {% if messages %}
-<ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
+<div class="alert alert-info">
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endif %}
 
+<!-- Transaction Form -->
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <label for="product">Product:</label>
+    <select name="product" id="product" class="form-control">
+        {% for product in form.fields.product.queryset %}
+            <option value="{{ product.id }}" {% if product.available_units == 0 %}disabled{% endif %}>
+                {{ product.name }} - {{ product.status }} (Stock: {{ product.available_units }})
+            </option>
+        {% endfor %}
+    </select>
+
+    <p><strong>Note:</strong> Out-of-stock products are disabled.</p>
+
+    {{ form.units.label_tag }} {{ form.units }}
+
     <button class="btn btn-success" type="submit">Confirm Purchase</button>
-    <a class="btn btn-secondary" href="{% url 'product_list' %}">Back to Products</a>
+    <a class="btn btn-secondary" href="{% url 'transaction_list' %}">Back to Transaction List</a>
 </form>
 {% endblock %}

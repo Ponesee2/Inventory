@@ -31,6 +31,9 @@
                         <td>{{ products.status|default:"-" }}</td>
                         <td>{{ products.supplier|default:"-" }}</td>
                         <td>
+                            <a href="" class="btn btn-success btn-sm mx-1">
+                                <i class="fa-solid fa-dice-d6"></i></i> Re-Stock
+                            </a>
                              <a href="{% url 'product_update' products.pk %}" class="btn btn-warning btn-sm mx-1">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
