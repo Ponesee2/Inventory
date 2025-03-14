@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Transaction List</h2>
-<table border="1">
+<table border="1" class="table table-striped">
     <tr>
         <th>Product</th>
         <th>Units</th>
@@ -17,5 +17,5 @@
     </tr>
     {% endfor %}
 </table>
-<a href="{% url 'product_list' %}">Back to Products</a>
+<a class="btn btn-secondary m-3" href="{% url 'product_list' %}">Back to Products</a>
 {% endblock %}

@@ -68,24 +68,50 @@ class ProductDeleteView(DeleteView):
     template_name = 'website/product_delete.html'
     success_url = reverse_lazy('product_list')
 
+# def transaction_create(request):
+#     """Process a new transaction (buying a product)."""
+#     if request.method == 'POST':
+#         form = TransactionForm(request.POST)
+#         if form.is_valid():
+#             transaction = form.save(commit=False)  # Don't save yet
+#             product = transaction.product
+
+#             if transaction.units > product.available_units:
+#                 messages.error(request, f"Not enough stock available for {product.name}.")
+#             else:
+#                 transaction.total_price = transaction.units * product.price  # Calculate price
+#                 product.available_units -= transaction.units  # Deduct stock
+#                 product.save()
+#                 transaction.save()  # Save transaction
+
+#                 messages.success(request, "Transaction successful!")
+#                 return redirect('transaction_list')  # Redirect to transaction list
+
+#     else:
+#         form = TransactionForm()
+
+#     return render(request, 'website/transaction_create.html', {'form': form})
+
 def transaction_create(request):
     """Process a new transaction (buying a product)."""
     if request.method == 'POST':
         form = TransactionForm(request.POST)
         if form.is_valid():
-            transaction = form.save(commit=False)  # Don't save yet
+            transaction = form.save(commit=False)
             product = transaction.product
 
-            if transaction.units > product.available_units:
+            if product.status == 'Unavailable' or product.available_units == 0:
+                messages.error(request, f"{product.name} is out of stock and cannot be purchased.")
+            elif transaction.units > product.available_units:
                 messages.error(request, f"Not enough stock available for {product.name}.")
             else:
-                transaction.total_price = transaction.units * product.price  # Calculate price
-                product.available_units -= transaction.units  # Deduct stock
+                transaction.total_price = transaction.units * product.price
+                product.available_units -= transaction.units
                 product.save()
-                transaction.save()  # Save transaction
+                transaction.save()
 
                 messages.success(request, "Transaction successful!")
-                return redirect('transaction_list')  # Redirect to transaction list
+                return redirect('transaction_list')
 
     else:
         form = TransactionForm()
