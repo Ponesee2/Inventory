@@ -17,20 +17,81 @@
 <form method="post">
     {% csrf_token %}
 
-    <label for="product">Product:</label>
-    <select name="product" id="product" class="form-control">
-        {% for product in form.fields.product.queryset %}
-            <option value="{{ product.id }}" {% if product.available_units == 0 %}disabled{% endif %}>
-                {{ product.name }} - {{ product.status }} (Stock: {{ product.available_units }})
-            </option>
-        {% endfor %}
-    </select>
+    <!-- Product Selection -->
+    <div class="form-group">
+        <label for="product">Product:</label>
+        <select name="product" id="product" class="form-control" required>
+            <option value="" selected disabled>-- Select Product --</option>
+            {% for product in products %}
+                <option value="{{ product.id }}" data-price="{{ product.price }}" 
+                    {% if product.available_units == 0 %}disabled{% endif %}>
+                    {{ product.name }} - {{ product.status }} (Stock: {{ product.available_units }}) - ₱{{ product.price }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
 
     <p><strong>Note:</strong> Out-of-stock products are disabled.</p>
 
-    {{ form.units.label_tag }} {{ form.units }}
+    <!-- Product Quantity -->
+    <div class="form-group">
+        <label for="units">Quantity:</label>
+        <input type="number" name="units" id="units" class="form-control" min="1" required>  
+    </div>
 
-    <button class="btn btn-success" type="submit">Confirm Purchase</button>
-    <a class="btn btn-secondary" href="{% url 'transaction_list' %}">Back to Transaction List</a>
+    <!-- Total Price (Auto-Calculated) -->
+    <div class="form-group">
+        <label for="total_price">Total Price:</label>
+        <input type="text" id="total_price" class="form-control" readonly>
+    </div>
+
+    <!-- Amount Given -->
+    <div class="form-group">
+        <label for="amount_given">Amount Given:</label>
+        <input type="number" name="amount" id="amount_given" class="form-control" min="1" required>  
+    </div>
+
+    <!-- Change (Auto-Calculated) -->
+    <div class="form-group">
+        <label for="change">Change:</label>
+        <input type="text" id="change" class="form-control" readonly>
+    </div>
+
+    <div class="form-group mt-3">
+        <button class="btn btn-success" type="submit">Confirm Purchase</button>
+        <a class="btn btn-secondary" href="{% url 'transaction_list' %}">Back to Transaction List</a>
+    </div>
 </form>
+
+<!-- JavaScript for Live Calculation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const productDropdown = document.getElementById("product");
+        const quantityInput = document.getElementById("units");
+        const totalPriceField = document.getElementById("total_price");
+        const amountGivenInput = document.getElementById("amount_given");
+        const changeField = document.getElementById("change");
+
+        function updateTotalPrice() {
+            let selectedOption = productDropdown.options[productDropdown.selectedIndex];
+            let price = parseFloat(selectedOption.getAttribute("data-price")) || 0;
+            let quantity = parseInt(quantityInput.value) || 0;
+            let total = price * quantity;
+            totalPriceField.value = "₱" + total.toFixed(2);
+            updateChange();
+        }
+
+        function updateChange() {
+            let total = parseFloat(totalPriceField.value.replace("₱", "")) || 0;
+            let amountGiven = parseFloat(amountGivenInput.value) || 0;
+            let change = amountGiven - total;
+            changeField.value = change >= 0 ? "₱" + change.toFixed(2) : "Insufficient Amount";
+        }
+
+        productDropdown.addEventListener("change", updateTotalPrice);
+        quantityInput.addEventListener("input", updateTotalPrice);
+        amountGivenInput.addEventListener("input", updateChange);
+    });
+</script>
+
 {% endblock %}
