@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+</head>
+<body>
+    <h3 class="mt-4">Re-Stock Logs</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Added</th>
+                    <th>Timestamp</th>
+                    <th>Added By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in restock_logs %}
+                    <tr>
+                        <td>{{ log.product.name }}</td>
+                        <td>{{ log.quantity_added }}</td>
+                        <td>{{ log.timestamp }}</td>
+                        <td>{{ log.supplier }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

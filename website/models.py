@@ -52,6 +52,19 @@ class Product(models.Model):
     def __str__(self):  
         return self.name
 
+class RestockLog(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity_added = models.IntegerField()
+    timestamp = models.DateTimeField(default=now)
+    supplier = models.ForeignKey(
+        'Supplier', 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True
+    )
+
+    def __str__(self):
+        return f"Restocked {self.quantity_added} units of {self.product.name} on {self.timestamp}"
 
 class Transaction(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

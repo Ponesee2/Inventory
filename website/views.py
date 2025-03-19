@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import *
 from .forms import *
+from django.http import JsonResponse
 
 # Create your views here.
 def dashboard (request):
@@ -48,7 +49,8 @@ def supplier_delete(request, pk):
 
 def product_list(request):
     product = Product.objects.all()
-    return render(request, 'website/product_list.html', {'product': product})
+    suppliers  = Supplier.objects.all()  # Fetch all suppliers
+    return render(request, 'website/product_list.html', {'suppliers': suppliers, 'product': product})
 
 
 class ProductCreateView(CreateView):
@@ -134,3 +136,66 @@ def transaction_list(request):
     """Show all transactions."""
     transactions = Transaction.objects.all().order_by('-date')
     return render(request, 'website/transaction_list.html', {'transactions': transactions})
+
+# def product_restock(request, pk):
+#     product = get_object_or_404(Product, pk=pk)
+    
+#     if request.method == "POST":
+#         try:
+#             restock_amount = int(request.POST.get("restock_amount", 0))
+#             if restock_amount > 0:
+#                 product.available_units += restock_amount
+#                 product.save()
+#                 messages.success(request, f"{restock_amount} units added to {product.name}.")
+#             else:
+#                 messages.error(request, "Invalid quantity entered.")
+#         except ValueError:
+#             messages.error(request, "Please enter a valid number.")
+
+#     return redirect("product_list")
+
+# def product_restock(request, pk):
+#     product = get_object_or_404(Product, pk=pk)
+    
+#     if request.method == "POST":
+#         try:
+#             restock_amount = int(request.POST.get("restock_amount", 0))
+#             if restock_amount > 0:
+#                 # Update both available_units and total units
+#                 product.available_units += restock_amount
+#                 product.units += restock_amount  # Update total units
+#                 product.save()
+
+#                 # Log the re-stock action
+#                 RestockLog.objects.create(
+#                     product=product,
+#                     quantity_added=restock_amount,
+#                     added_by=request.user.username  # Store username
+#                 )
+
+#                 messages.success(request, f"{restock_amount} units added to {product.name}.")
+#             else:
+#                 messages.error(request, "Invalid quantity entered.")
+#         except ValueError:
+#             messages.error(request, "Please enter a valid number.")
+
+#     return redirect("product_list")
+
+def product_restock(request, pk):
+    if request.method == "POST":
+        product = get_object_or_404(Product, pk=pk)
+        restock_amount = int(request.POST.get("restock_amount", 0))
+        supplier_id = request.POST.get("restock_supplier")
+
+        product.available_units += restock_amount
+        product.save()
+
+        return JsonResponse({"message": "Product restocked successfully!"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def product_list_logs(request):
+    products = Product.objects.all()
+    restock_logs = RestockLog.objects.order_by("-timestamp")[:10]  # Show latest 10 logs
+
+    return render(request, "website/product_list_logs.html", {"product": products, "restock_logs": restock_logs})
