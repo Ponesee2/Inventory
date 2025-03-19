@@ -17,5 +17,9 @@
     </tr>
     {% endfor %}
 </table>
-<a class="btn btn-secondary m-3" href="{% url 'product_list' %}">Back to Products</a>
+<div>
+    <a class="btn btn-warning " href="{% url 'product_list' %}">Back to Products</a>
+    <a class="btn btn-secondary " href="{% url 'dashboard' %}">Back</a>
+</div>
+
 {% endblock %}

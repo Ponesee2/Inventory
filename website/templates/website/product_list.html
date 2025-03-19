@@ -31,15 +31,20 @@
                         <td>{{ products.status|default:"-" }}</td>
                         <td>{{ products.supplier|default:"-" }}</td>
                         <td>
-                            <a href="" class="btn btn-success btn-sm mx-1">
-                                <i class="fa-solid fa-dice-d6"></i></i> Re-Stock
-                            </a>
-                             <a href="{% url 'product_update' products.pk %}" class="btn btn-warning btn-sm mx-1">
+                            <button class="btn btn-success btn-sm mx-1 restock-btn"
+                                data-product-id="{{ products.id }}"
+                                data-product-name="{{ products.name }}">
+                                <i class="fa-solid fa-dice-d6"></i> Re-Stock
+                            </button>
+                             <a href="{% url 'product_update' products.id %}" class="btn btn-warning btn-sm mx-1">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
                             <a href="{% url 'product_delete' products.id %}" class="btn btn-danger btn-sm mx-1">
                                 <i class="fas fa-trash"></i> Delete
                             </a>  
+                            <a href="{% url 'product_list_logs' %}" class="btn btn-secondary  btn-sm mx-1">
+                                <i class="fas fa-edit"></i> Logs
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -47,8 +52,86 @@
         </table>
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
     </div>
+    <div>
+        <!-- Re-Stock Modal -->
+        <div class="modal fade" id="restockModal" tabindex="-1" aria-labelledby="restockModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="restockModalLabel">Re-Stock Product</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="restockForm" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <input type="hidden" id="restockProductId" name="product_id">
+        
+                            <!-- Quantity Input -->
+                            <label for="restock_amount">Enter Quantity:</label>
+                            <input type="number" name="restock_amount" id="restock_amount" class="form-control" min="1" required>
+        
+                            <!-- Supplier Selection -->
+                            <label for="restock_supplier" class="mt-3">Select Supplier:</label>
+                            <select name="restock_supplier" id="restock_supplier" class="form-control" required>
+                                <option value="" selected disabled>-- Select Supplier --</option>
+                                {% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Re-Stock</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
+    $(document).ready(function() {
+        // Ensure modal opens when clicking "Re-Stock" button
+        $('.restock-btn').click(function() {
+            let productId = $(this).data('product-id');
+            let productName = $(this).data('product-name');
+
+            $('#restockProductId').val(productId);
+            $('#restockModalLabel').text("Re-Stock " + productName);
+            $('#restockModal').modal('show'); 
+        });
+
+        // Handle AJAX Submission
+        $('#restockForm').submit(function(event) {
+            event.preventDefault();
+
+            let productId = $('#restockProductId').val();
+            let restockAmount = $('#restock_amount').val();
+            let supplierId = $('#restock_supplier').val();
+            let csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+
+            $.ajax({
+                url: "/product/re-stock/" + productId + "/", // Ensure this URL exists in Django's urls.py
+                type: "POST",
+                data: {
+                    product_id: productId,
+                    restock_amount: restockAmount,
+                    restock_supplier: supplierId,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function(response) {
+                    $('#restockModal').modal('hide'); 
+                    alert("Product restocked successfully!");
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+    });
     $(document).ready(function() {
         $('#businesstable').DataTable({
             responsive: true,
@@ -61,4 +144,6 @@
         });
     });
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

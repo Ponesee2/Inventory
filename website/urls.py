@@ -14,5 +14,7 @@ urlpatterns = [
     path('products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product_delete'),
     path('transaction/new/', transaction_create, name='transaction_create'),
     path('transactions/', transaction_list, name='transaction_list'),
+    path('product/re-stock/<int:pk>/', product_restock, name='product_restock'),
+    path('restock/logs/', product_list_logs, name='product_list_logs'),
 ]
 
