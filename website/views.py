@@ -187,12 +187,24 @@ def product_restock(request, pk):
         restock_amount = int(request.POST.get("restock_amount", 0))
         supplier_id = request.POST.get("restock_supplier")
 
-        product.available_units += restock_amount
+        # Validate supplier
+        supplier = get_object_or_404(Supplier, pk=supplier_id)
+
+        # Update product stock
+        product.units += restock_amount  # Update total units
+        product.available_units += restock_amount  # Update available units
         product.save()
 
-        return JsonResponse({"message": "Product restocked successfully!"})
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        # Log the restock event
+        RestockLog.objects.create(
+            product=product,
+            supplier=supplier,
+            quantity_added=restock_amount  # Correct field name
+        )
 
+        return JsonResponse({"message": "Product restocked successfully!"})
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 def product_list_logs(request):
     products = Product.objects.all()
