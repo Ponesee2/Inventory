@@ -68,24 +68,27 @@ class ProductDeleteView(DeleteView):
     template_name = 'website/product_delete.html'
     success_url = reverse_lazy('product_list')
 
+
 # def transaction_create(request):
 #     """Process a new transaction (buying a product)."""
 #     if request.method == 'POST':
 #         form = TransactionForm(request.POST)
 #         if form.is_valid():
-#             transaction = form.save(commit=False)  # Don't save yet
+#             transaction = form.save(commit=False)
 #             product = transaction.product
 
-#             if transaction.units > product.available_units:
+#             if product.status == 'Unavailable' or product.available_units == 0:
+#                 messages.error(request, f"{product.name} is out of stock and cannot be purchased.")
+#             elif transaction.units > product.available_units:
 #                 messages.error(request, f"Not enough stock available for {product.name}.")
 #             else:
-#                 transaction.total_price = transaction.units * product.price  # Calculate price
-#                 product.available_units -= transaction.units  # Deduct stock
+#                 transaction.total_price = transaction.units * product.price
+#                 product.available_units -= transaction.units
 #                 product.save()
-#                 transaction.save()  # Save transaction
+#                 transaction.save()
 
 #                 messages.success(request, "Transaction successful!")
-#                 return redirect('transaction_list')  # Redirect to transaction list
+#                 return redirect('transaction_list')
 
 #     else:
 #         form = TransactionForm()
@@ -93,30 +96,39 @@ class ProductDeleteView(DeleteView):
 #     return render(request, 'website/transaction_create.html', {'form': form})
 
 def transaction_create(request):
-    """Process a new transaction (buying a product)."""
-    if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            product = transaction.product
+    if request.method == "POST":
+        product_id = request.POST.get("product")
+        quantity = int(request.POST.get("units"))
+        amount_given = float(request.POST.get("amount"))
 
-            if product.status == 'Unavailable' or product.available_units == 0:
-                messages.error(request, f"{product.name} is out of stock and cannot be purchased.")
-            elif transaction.units > product.available_units:
-                messages.error(request, f"Not enough stock available for {product.name}.")
-            else:
-                transaction.total_price = transaction.units * product.price
-                product.available_units -= transaction.units
-                product.save()
-                transaction.save()
+        try:
+            product = Product.objects.get(id=product_id)
+            transaction = Transaction(
+                product=product,
+                units=quantity,
+                amount_given=amount_given
+            )
+            transaction.full_clean()  # Validate stock and payment
+            transaction.save()
 
-                messages.success(request, "Transaction successful!")
-                return redirect('transaction_list')
+            messages.success(request, f"Transaction successful! Change: ₱{transaction.change}")
+            return redirect("transaction_list")
 
-    else:
-        form = TransactionForm()
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return redirect("create_transaction")
 
-    return render(request, 'website/transaction_create.html', {'form': form})
+    products = Product.objects.filter(available_units__gt=0)
+    return render(request, "website/transaction_create.html", {"products": products})
+
+
+def sales_report(request):
+    context = {
+        "daily_sales": SalesReport.daily_sales(),
+        "weekly_sales": SalesReport.weekly_sales(),
+        "monthly_sales": SalesReport.monthly_sales(),
+    }
+    return render(request, "sales/sales_report.html", context)
 
 def transaction_list(request):
     """Show all transactions."""
