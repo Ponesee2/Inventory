@@ -8,9 +8,28 @@ from .forms import *
 from django.http import JsonResponse
 
 # Create your views here.
-def dashboard (request):
-    
-    return render(request, 'website/dashboard.html', {} )
+def dashboard(request):
+    # Count Data for Cards
+    supplier_count = Supplier.objects.count()
+    product_count = Product.objects.count()
+    transaction_count = Transaction.objects.count()
+    daily_sales = SalesReport.daily_sales()
+
+    # Data for Chart
+    chart_data = {
+        "labels": ['Suppliers', 'Products', 'Transactions', 'Daily Sales'],
+        "data": [supplier_count, product_count, transaction_count, daily_sales],
+    }
+
+    context = {
+        "supplier_count": supplier_count,
+        "product_count": product_count,
+        "transaction_count": transaction_count,
+        "daily_sales": daily_sales,
+        "chart_data": chart_data,
+    }
+
+    return render(request, 'website/dashboard.html', context)
 
 def supplier_list(request):
     suppliers = Supplier.objects.all()

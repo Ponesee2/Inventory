@@ -8,7 +8,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="small-box bg-info m-1">
                     <div class="inner">
-                      <h3>150</h3>
+                      <h3>{{ supplier_count }}</h3>
                       <h5 class="">Supplier</h5>
                     </div>
                     <div class="icon">
@@ -22,8 +22,8 @@
             <div class="col-md-3 col-sm-6">
                 <div class="small-box bg-success m-1">
                     <div class="inner">
-                      <h3>150</h3>
-                      <h5 class="">Products</h5>
+                        <h3>{{ product_count }}</h3>
+                        <h5 class="">Products</h5>
                     </div>
                     <div class="icon">
                       <i class="fas fa-shopping-cart"></i>
@@ -36,8 +36,8 @@
             <div class="col-md-3 col-sm-6">
                 <div class="small-box bg-warning m-1">
                     <div class="inner">
-                      <h3>150</h3>
-                      <h5 class="">Transact</h5>
+                        <h3>{{ transaction_count }}</h3>
+                        <h5 class="">Transact</h5>
                     </div>
                     <div class="icon">
                       <i class="fas fa-shopping-cart"></i>
@@ -50,7 +50,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="small-box bg-danger m-1">
                     <div class="inner">
-                      <h3>150</h3>
+                      <h3>{{ daily_sales }}</h3>
                       <h5 class="">Every Day Sales</h5>
                     </div>
                     <div class="icon">
@@ -75,26 +75,25 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const ctx = document.getElementById('assetPieChart').getContext('2d');
-            const data = {
-                labels: ['Business Units', 'Departments', 'Asset Categories', 'Asset Models', 'Assets', 'Suppliers', 'Assigned Assets'],
-                datasets: [{
-                    data: [10, 10 , 50, 10, 40, 20, 35 ],
-                    backgroundColor: [
-                        '#227C9D', '#17C3B2', '#FFCB77', '#e6a377', '#dc3545', '#6f42c1', '#FE6D73'
-                    ],
-                    hoverBackgroundColor: [
-                        '#0056b3', '#218838', '#e0a800', '#138496', '#c82333', '#5a1e91', '#e8590c'
-                    ]
-                }]
+            const chartData = {
+                labels: ['Suppliers', 'Products', 'Transactions', 'Daily Sales'],
+                data: [{{ supplier_count }}, {{ product_count }}, {{ transaction_count }}, {{ daily_sales }}]
             };
     
             new Chart(ctx, {
                 type: 'bar',
-                data: data,
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.data,
+                        backgroundColor: ['#227C9D', '#17C3B2', '#FFCB77', '#dc3545'],
+                        hoverBackgroundColor: ['#0056b3', '#218838', '#e0a800', '#c82333']
+                    }]
+                },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -109,5 +108,4 @@
             });
         });
     </script>
-
  {% endblock %}
